@@ -1,0 +1,10 @@
+/[Ll]ib/
+/[Ss]cripts/
+secrets.py
+data.json
+data_youtube.json
+__pycache__ 
+pyvenv.cfg
+/[Ee]tc/
+/[Ss]hare/
+/.idea/
