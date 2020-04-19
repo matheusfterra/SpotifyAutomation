@@ -374,6 +374,7 @@ class CreatePlaylist:
 
     def add_song_to_playlist(self):
         """Add all liked songs into a new Spotify playlist"""
+        print("Verificando Liked Videos")
         global spotify_token
         global spotify_user_id
         global data
