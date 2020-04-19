@@ -6,7 +6,7 @@ A  script that takes your liked videos on Youtube, and generates a Spotify playl
 * [Technologies](#Technologies)
 * [Setup](#LocalSetup)
 * [ToDo](#ToDo)
-* [Troubleshooting](#Troubleshooting)
+* [Credits](#Credits)
 
 ## Website
 Check out the my Website for a step by step walk through 
@@ -42,9 +42,9 @@ Check out the my Website for a step by step walk through
 * Create a Graphical Interface
 * Create a mobile app with Kivy
 
-##Credits
+## Credits
 Credits to [The Come Up] channel for Start a ideia and share yours code.
-Know my [Website] and more about my in my [LikedIn] profile.
+Know my [Website] and more about my in my [LinkedIn] profile.
 
    [Youtube Data API v3]: <https://developers.google.com/youtube/v3>
    [Spotify Web API]: <https://developer.spotify.com/documentation/web-api/>
