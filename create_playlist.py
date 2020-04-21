@@ -51,7 +51,10 @@ class CreatePlaylist:
             my_credentials = json.load(f)
         #Capta registros temporais para comparação
         last_event=my_credentials['credentials'][0]["time"]
-        last_event= datetime.strptime(last_event, '%Y-%m-%d %H:%M:%S')
+        try:
+            last_event = datetime.strptime(last_event, '%Y-%m-%d %H:%M:%S')
+        except:
+            last_event = datetime.now()
         time_atual=datetime.now()
         #Captura o refresh token para recuperar novo token
         refresh_token = my_credentials['credentials'][0]["refresh_token"]
@@ -59,8 +62,8 @@ class CreatePlaylist:
         if (time_atual - last_event) > timedelta(minutes=58) or my_credentials['credentials'][0]["youtube_token"]=="":
             #Se não houver refresh token, há a requisição de um novo refresh token
             if refresh_token == "":
-                redirect_uri = "https%3A%2F%2Fmatheusterra.com%2F"
-                redirect_uri_without_formatation = "https://matheusterra.com/"
+                redirect_uri = "https%3A%2F%2Fmatheusterra.com%2FSpotifyAutomation.php"
+                redirect_uri_without_formatation = "https://matheusterra.com/SpotifyAutomation.php"
                 link = "https://accounts.google.com/o/oauth2/auth?client_id={}&redirect_uri={}&scope=https://www.googleapis.com/auth/youtube&response_type=code&access_type=offline".format(client_id_youtube, redirect_uri)
                 print("Clique no link a seguir e faça o login: {}".format(link))
                 code_youtube = input("Digite o Código: ")
@@ -282,20 +285,23 @@ class CreatePlaylist:
         with open("data.json", "r") as f:
             my_credentials = json.load(f)
         last_event=my_credentials['credentials'][0]["time"]
-        last_event= datetime.strptime(last_event, '%Y-%m-%d %H:%M:%S')
+        try:
+            last_event = datetime.strptime(last_event, '%Y-%m-%d %H:%M:%S')
+        except:
+            last_event = datetime.now()
         time_atual=datetime.now()
         refresh_token = my_credentials['credentials'][0]["refresh_token"]
 
         authorization_concat = client_id + ":" + client_secret
         authorization_bytes = authorization_concat.encode("utf-8")
         authorization_base64 = base64.b64encode(authorization_bytes).decode('utf-8')
-        redirect_uri_without_format = "https://matheusterra.com/"
+        redirect_uri_without_format = "https://matheusterra.com/SpotifyAutomation.php"
         if (time_atual - last_event) > timedelta(hours=1) or my_credentials['credentials'][0]["spotify_user_id"]=="":
             if refresh_token == "" or my_credentials['credentials'][0]["spotify_user_id"]=="":
                 print("Seu último acesso foi a mais de 1 hora. Atualize seu token")
 
                 scope="playlist-modify-public%20user-read-email"
-                redirect_uri="https%3A%2F%2Fmatheusterra.com%2F" #URL Encodered by: https://meyerweb.com/eric/tools/dencoder/
+                redirect_uri="https%3A%2F%2Fmatheusterra.com%2FSpotifyAutomation.php" #URL Encodered by: https://meyerweb.com/eric/tools/dencoder/
 
                 link="https://accounts.spotify.com/authorize?client_id={}&scope={}&response_type=code&redirect_uri={}".format(client_id,scope,redirect_uri)
                 print("Clique no link a seguir e faça o login: {}".format(link))
