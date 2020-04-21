@@ -1,4 +1,5 @@
 import json
+import sys
 import urllib
 import requests
 import youtube_dl
@@ -7,21 +8,87 @@ from exceptions import ResponseException
 from secrets import client_id,client_secret,api_key_youtube,client_id_youtube,client_secret_youtube
 import base64
 from datetime import datetime, timedelta
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QIcon, QPixmap, QPainter, QColor
+from interface import *
 
 spotify_token=0
 spotify_user_id=0
 refresh_token=0
 data = {}
 
-class CreatePlaylist:
+class CreatePlaylist(QtWidgets.QMainWindow):
     def __init__(self):
+        QtWidgets.QWidget.__init__(self)
+        self.ui = Ui_Form()
+        self.frame = QFrame(self)
+        selected_color = QColor(0, 0, 0)
+        self.frame.setStyleSheet("QWidget{background-color:%s}"%selected_color.name())
+        self.frame.setGeometry(0, 0, 373, 753)
+        self.ui.label=QLabel(self)
+        self.ui.label.setPixmap(QPixmap('images/image.png'))
+        self.ui.label.setGeometry(0, 0, 373, 753)
+        self.ui.setupUi(self)
+        self.setFixedSize(self.size())
+
         #Função para registro das musicas marcadas com "Gostei"
         self.all_song_info = {}
         global nome_playlist
         global playlist_id
 
+
         #Nome para Playlist que será Criada no Spotify
         nome_playlist="YouTube Liked Videos"
+
+        #self.add_song_to_playlist()
+        self.ui.btn_add_songs.clicked.connect(self.add_song_to_playlist)
+        self.set_paramenters()
+
+    def set_paramenters(self):
+        self.ui.btn_autenticar_spotify.setEnabled(False)
+        self.ui.btn_autenticar_google.setEnabled(False)
+
+        with open("data.json", "r") as f:
+            my_credentials = json.load(f)
+        #Capta registros temporais para comparação
+        login_spotify=my_credentials['credentials'][0]["spotify_user_id"]
+        refresh_token=my_credentials['credentials'][0]["refresh_token"]
+        if refresh_token!="":
+            self.ui.txt_auth_spotify.setText("Autenticado!")
+            self.ui.txt_spotify.setEnabled(False)
+            self.ui.btn_link_spotify.setEnabled(False)
+            self.ui.btn_autenticar_spotify.setEnabled(False)
+        if login_spotify!="":
+            self.ui.txt_user.setText(login_spotify)
+        with open("data_youtube.json", "r") as f:
+            my_credentials2 = json.load(f)
+        refresh_token=my_credentials2['credentials'][0]["refresh_token"]
+        if refresh_token!="":
+            self.ui.txt_auth_google.setText("Autenticado!")
+            self.ui.txt_google.setEnabled(False)
+
+
+    def logout(self):
+
+        data['credentials'] = []
+        data['credentials'].append({
+            'spotify_user_id': "",
+            'spotify_token': "",
+            'time': "",
+            'refresh_token': ""
+        })
+        with open('data.json', 'w') as outfile:
+            json.dump(data, outfile)
+
+        data['credentials'] = []
+        data['credentials'].append({
+            'youtube_token': "",
+            'refresh_token': "",
+            'time': ""
+        })
+        with open('data_youtube.json', 'w') as outfile:
+            json.dump(data, outfile)
+        print("Logout concluído com Sucesso!")
 
     def get_token_youtube(self):
         #Abre o arquivo de dados do youtube
@@ -29,16 +96,19 @@ class CreatePlaylist:
             my_credentials = json.load(f)
         #Capta registros temporais para comparação
         last_event=my_credentials['credentials'][0]["time"]
-        last_event= datetime.strptime(last_event, '%Y-%m-%d %H:%M:%S')
+        try:
+            last_event= datetime.strptime(last_event, '%Y-%m-%d %H:%M:%S')
+        except:
+            last_event=datetime.now()
         time_atual=datetime.now()
         #Captura o refresh token para recuperar novo token
         refresh_token = my_credentials['credentials'][0]["refresh_token"]
         #Se houver passado mais de uma hora
-        if (time_atual - last_event) > timedelta(minutes=58):
+        if (time_atual - last_event) > timedelta(minutes=58) or my_credentials['credentials'][0]["youtube_token"]=="":
             #Se não houver refresh token, há a requisição de um novo refresh token
             if refresh_token == "":
-                redirect_uri = "https%3A%2F%2Fmatheusterra.com%2F"
-                redirect_uri_without_formatation = "https://matheusterra.com/"
+                redirect_uri = "https%3A%2F%2Fmatheusterra.com%2FSpotifyAutomation.php"
+                redirect_uri_without_formatation = "https://matheusterra.com/SpotifyAutomation.php"
                 link = "https://accounts.google.com/o/oauth2/auth?client_id={}&redirect_uri={}&scope=https://www.googleapis.com/auth/youtube&response_type=code&access_type=offline".format(client_id_youtube, redirect_uri)
                 print("Clique no link a seguir e faça o login: {}".format(link))
                 code_youtube = input("Digite o Código: ")
@@ -210,7 +280,6 @@ class CreatePlaylist:
             }
         )
         response_json = response.json()
-
         # check for valid response status
         if response.status_code != 200 and response.status_code != 201:
             raise ResponseException(response.status_code)
@@ -260,20 +329,23 @@ class CreatePlaylist:
         with open("data.json", "r") as f:
             my_credentials = json.load(f)
         last_event=my_credentials['credentials'][0]["time"]
-        last_event= datetime.strptime(last_event, '%Y-%m-%d %H:%M:%S')
+        try:
+            last_event= datetime.strptime(last_event, '%Y-%m-%d %H:%M:%S')
+        except:
+            last_event =datetime.now()
         time_atual=datetime.now()
         refresh_token = my_credentials['credentials'][0]["refresh_token"]
 
         authorization_concat = client_id + ":" + client_secret
         authorization_bytes = authorization_concat.encode("utf-8")
         authorization_base64 = base64.b64encode(authorization_bytes).decode('utf-8')
-        redirect_uri_without_format = "https://matheusterra.com/"
+        redirect_uri_without_format = "https://matheusterra.com/SpotifyAutomation.php"
         if (time_atual - last_event) > timedelta(hours=1) or my_credentials['credentials'][0]["spotify_user_id"]=="":
             if refresh_token == "" or my_credentials['credentials'][0]["spotify_user_id"]=="":
                 print("Seu último acesso foi a mais de 1 hora. Atualize seu token")
 
                 scope="playlist-modify-public%20user-read-email"
-                redirect_uri="https%3A%2F%2Fmatheusterra.com%2F" #URL Encodered by: https://meyerweb.com/eric/tools/dencoder/
+                redirect_uri="https%3A%2F%2Fmatheusterra.com%2FSpotifyAutomation.php" #URL Encodered by: https://meyerweb.com/eric/tools/dencoder/
 
                 link="https://accounts.spotify.com/authorize?client_id={}&scope={}&response_type=code&redirect_uri={}".format(client_id,scope,redirect_uri)
                 print("Clique no link a seguir e faça o login: {}".format(link))
@@ -346,7 +418,6 @@ class CreatePlaylist:
         else:
             spotify_token = my_credentials['credentials'][0]["spotify_token"]
             spotify_user_id = my_credentials['credentials'][0]["spotify_user_id"]
-
         return spotify_token, spotify_user_id
 
     def get_spotify_uri(self, song_name, artist):
@@ -380,12 +451,19 @@ class CreatePlaylist:
         global data
 
         spotify_token,spotify_user_id=self.spotify_authenticate()
+
         delete=False
         # create a new playlist
+
         playlist_id = self.create_playlist()
+
+
         uris_playlist_tracks=self.verify_playlist_track(playlist_id)
+
         # populate dictionary with our liked songs
+
         self.get_liked_videos()
+
 
         # collect all of uri
         uris = [info["spotify_uri"]
@@ -440,5 +518,20 @@ class CreatePlaylist:
             print("Não há músicas novas à serem acrescentadas.")
 
 if __name__ == '__main__':
-    cp = CreatePlaylist()
-    cp.add_song_to_playlist()
+
+    app = QtWidgets.QApplication(sys.argv)
+
+    myapp = CreatePlaylist()
+    myapp.setWindowTitle('SpotifyAutomation')
+    myapp.show()
+
+    qtRectangle = myapp.frameGeometry()
+    centerPoint = QDesktopWidget().availableGeometry().center()
+    qtRectangle.moveCenter(centerPoint)
+    myapp.move(qtRectangle.topLeft())
+
+
+
+    #cp.logout()
+    sys.exit(app.exec_())
+    #myapp.add_song_to_playlist()
