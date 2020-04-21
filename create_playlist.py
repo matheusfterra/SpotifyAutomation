@@ -164,7 +164,7 @@ class CreatePlaylist:
         """Grab Our Liked Videos & Create A Dictionary Of Important Song Information"""
         #Requisita o token atualizado para recuperar os likeds videos
         youtube_token=self.get_token_youtube()
-        query = "https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&myRating=like&key={}".format(
+        query = "https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&maxResults=10&myRating=like&key={}".format(
             api_key_youtube)
         response = requests.get(
             url=query,
@@ -188,7 +188,7 @@ class CreatePlaylist:
                     youtube_url, download=False)
                 song_name = video["track"]
                 artist = video["artist"]
-
+                print(song_name)
                 if song_name is not None and artist is not None:
                     # save all important info and skip any missing song and artist
                     self.all_song_info[video_title] = {
@@ -411,7 +411,6 @@ class CreatePlaylist:
         )
         response_json = response.json()
         songs = response_json["tracks"]["items"]
-
         # only use the first song
         uri = songs[0]["uri"]
 
