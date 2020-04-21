@@ -23,6 +23,28 @@ class CreatePlaylist:
         #Nome para Playlist que será Criada no Spotify
         nome_playlist="YouTube Liked Videos"
 
+    def logout(self):
+
+        data['credentials'] = []
+        data['credentials'].append({
+            'spotify_user_id': "",
+            'spotify_token': "",
+            'time': "",
+            'refresh_token': ""
+        })
+        with open('data.json', 'w') as outfile:
+            json.dump(data, outfile)
+
+        data['credentials'] = []
+        data['credentials'].append({
+            'youtube_token': "",
+            'refresh_token': "",
+            'time': ""
+        })
+        with open('data_youtube.json', 'w') as outfile:
+            json.dump(data, outfile)
+        print("Logout concluído com Sucesso!")
+
     def get_token_youtube(self):
         #Abre o arquivo de dados do youtube
         with open("data_youtube.json", "r") as f:
@@ -34,7 +56,7 @@ class CreatePlaylist:
         #Captura o refresh token para recuperar novo token
         refresh_token = my_credentials['credentials'][0]["refresh_token"]
         #Se houver passado mais de uma hora
-        if (time_atual - last_event) > timedelta(minutes=58):
+        if (time_atual - last_event) > timedelta(minutes=58) or my_credentials['credentials'][0]["youtube_token"]=="":
             #Se não houver refresh token, há a requisição de um novo refresh token
             if refresh_token == "":
                 redirect_uri = "https%3A%2F%2Fmatheusterra.com%2F"
