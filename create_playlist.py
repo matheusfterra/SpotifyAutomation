@@ -24,7 +24,7 @@ class CreatePlaylist:
         nome_playlist="YouTube Liked Videos"
 
     def logout(self):
-
+        #https://myaccount.google.com/permissions
         data['credentials'] = []
         data['credentials'].append({
             'spotify_user_id': "",
@@ -85,7 +85,6 @@ class CreatePlaylist:
                 )
                 #Resposta de requisição
                 response_json = response.json()
-                print(response_json)
                 # check for valid response status
                 if response.status_code != 200 and response.status_code != 201:
                     raise ResponseException(response.status_code)
