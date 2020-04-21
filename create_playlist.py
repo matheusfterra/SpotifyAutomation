@@ -85,12 +85,14 @@ class CreatePlaylist:
                 )
                 #Resposta de requisição
                 response_json = response.json()
+                print(response_json)
                 # check for valid response status
                 if response.status_code != 200 and response.status_code != 201:
                     raise ResponseException(response.status_code)
                 else:
                     #Get novo token
                     youtube_token = response_json["access_token"]
+                    refresh_token = response_json["refresh_token"]
 
                     last_time = datetime.now()
                     data_em_texto = last_time.strftime('%Y-%m-%d %H:%M:%S')
@@ -469,4 +471,5 @@ class CreatePlaylist:
 
 if __name__ == '__main__':
     cp = CreatePlaylist()
+    #cp.logout()
     cp.add_song_to_playlist()
