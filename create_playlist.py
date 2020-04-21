@@ -69,26 +69,42 @@ class CreatePlaylist(QtWidgets.QMainWindow):
 
 
     def logout(self):
+        # https://myaccount.google.com/permissions
+        with open("data_youtube.json", "r") as f:
+            my_credentials = json.load(f)
+        # Capta registros temporais para comparação
+        youtube_token = my_credentials['credentials'][0]["youtube_token"]
+        if youtube_token == "":
+            print("Você não está logado!")
+        else:
+            query = "https://accounts.google.com/o/oauth2/revoke?token={}".format(youtube_token)
+            response = requests.get(
+                url=query,
+            )
+            response_json = response.json()
+            if response.status_code != 200 and response.status_code != 201:
+                raise ResponseException(response.status_code)
+            else:
 
-        data['credentials'] = []
-        data['credentials'].append({
-            'spotify_user_id': "",
-            'spotify_token': "",
-            'time': "",
-            'refresh_token': ""
-        })
-        with open('data.json', 'w') as outfile:
-            json.dump(data, outfile)
+                data['credentials'] = []
+                data['credentials'].append({
+                    'spotify_user_id': "",
+                    'spotify_token': "",
+                    'time': "",
+                    'refresh_token': ""
+                })
+                with open('data.json', 'w') as outfile:
+                    json.dump(data, outfile)
 
-        data['credentials'] = []
-        data['credentials'].append({
-            'youtube_token': "",
-            'refresh_token': "",
-            'time': ""
-        })
-        with open('data_youtube.json', 'w') as outfile:
-            json.dump(data, outfile)
-        print("Logout concluído com Sucesso!")
+                data['credentials'] = []
+                data['credentials'].append({
+                    'youtube_token': "",
+                    'refresh_token': "",
+                    'time': ""
+                })
+                with open('data_youtube.json', 'w') as outfile:
+                    json.dump(data, outfile)
+                print("Logout concluído com Sucesso!")
 
     def get_token_youtube(self):
         #Abre o arquivo de dados do youtube
