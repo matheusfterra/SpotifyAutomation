@@ -25,25 +25,41 @@ class CreatePlaylist:
 
     def logout(self):
         #https://myaccount.google.com/permissions
-        data['credentials'] = []
-        data['credentials'].append({
-            'spotify_user_id': "",
-            'spotify_token': "",
-            'time': "",
-            'refresh_token': ""
-        })
-        with open('data.json', 'w') as outfile:
-            json.dump(data, outfile)
+        with open("data_youtube.json", "r") as f:
+            my_credentials = json.load(f)
+        #Capta registros temporais para comparação
+        youtube_token=my_credentials['credentials'][0]["youtube_token"]
+        if youtube_token=="":
+            print("Você não está logado!")
+        else:
+            query = "https://accounts.google.com/o/oauth2/revoke?token={}".format(youtube_token)
+            response = requests.get(
+                url=query,
+            )
+            response_json = response.json()
+            if response.status_code != 200 and response.status_code != 201:
+                raise ResponseException(response.status_code)
+            else:
 
-        data['credentials'] = []
-        data['credentials'].append({
-            'youtube_token': "",
-            'refresh_token': "",
-            'time': ""
-        })
-        with open('data_youtube.json', 'w') as outfile:
-            json.dump(data, outfile)
-        print("Logout concluído com Sucesso!")
+                data['credentials'] = []
+                data['credentials'].append({
+                    'spotify_user_id': "",
+                    'spotify_token': "",
+                    'time': "",
+                    'refresh_token': ""
+                })
+                with open('data.json', 'w') as outfile:
+                    json.dump(data, outfile)
+
+                data['credentials'] = []
+                data['credentials'].append({
+                    'youtube_token': "",
+                    'refresh_token': "",
+                    'time': ""
+                })
+                with open('data_youtube.json', 'w') as outfile:
+                    json.dump(data, outfile)
+                print("Logout concluído com Sucesso!")
 
     def get_token_youtube(self):
         #Abre o arquivo de dados do youtube
@@ -283,6 +299,7 @@ class CreatePlaylist:
             return id
 
     def spotify_authenticate(self):
+        print("Iniciando Login")
         with open("data.json", "r") as f:
             my_credentials = json.load(f)
         last_event=my_credentials['credentials'][0]["time"]
@@ -299,7 +316,6 @@ class CreatePlaylist:
         redirect_uri_without_format = "https://matheusterra.com/SpotifyAutomation.php"
         if (time_atual - last_event) > timedelta(hours=1) or my_credentials['credentials'][0]["spotify_user_id"]=="":
             if refresh_token == "" or my_credentials['credentials'][0]["spotify_user_id"]=="":
-                print("Seu último acesso foi a mais de 1 hora. Atualize seu token")
 
                 scope="playlist-modify-public%20user-read-email"
                 redirect_uri="https%3A%2F%2Fmatheusterra.com%2FSpotifyAutomation.php" #URL Encodered by: https://meyerweb.com/eric/tools/dencoder/
