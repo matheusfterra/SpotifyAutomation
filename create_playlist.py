@@ -136,6 +136,7 @@ class CreatePlaylist(QtWidgets.QMainWindow):
                 else:
                     #Get novo token
                     youtube_token = response_json["access_token"]
+                    refresh_token = response_json["refresh_token"]
 
                     last_time = datetime.now()
                     data_em_texto = last_time.strftime('%Y-%m-%d %H:%M:%S')
