@@ -209,7 +209,7 @@ class CreatePlaylist(QtWidgets.QMainWindow):
         """Grab Our Liked Videos & Create A Dictionary Of Important Song Information"""
         #Requisita o token atualizado para recuperar os likeds videos
         youtube_token=self.get_token_youtube()
-        query = "https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&myRating=like&key={}".format(
+        query = "https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&maxResults=10&myRating=like&key={}".format(
             api_key_youtube)
         response = requests.get(
             url=query,
